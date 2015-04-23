@@ -1,0 +1,7 @@
+{
+    "installOptions" : {
+        "installDependencies" : true,
+        "installFromRepository" : false,
+        "libraryPath" : "C:/Users/wang/Miniconda3/Lib/site-packages/rpy2/R/win-library/3.1"
+    }
+}
