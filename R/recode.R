@@ -1,6 +1,13 @@
-recode <- function(var, recodes, deal.time = FALSE, as.factor.result = TRUE, levels){
-  is.fac <- is.factor(var)
-  if(is.fac) var <- as.character(var)
+#'@name recode
+#'@title An improved version of `car::recode`
+#'@description Add a function of recoding time vector to `car::recode`
+#'@param var numeric vector, character vector, factor, time vector
+#'@param recodes character string of recode specification
+#'@param deal.time if
+#'@export
+recode <- function(var, recodes, as.factor.result = TRUE, levels, labels){
+  if(is.factor(var)) var <- as.character(var)
+  deal.time <- any(class(var) %like% 'POSIX')
   
   recodes <- str_replace_all(recodes, '\n|\t| ', '')
   recode.list <- rev(strsplit(recodes, split = ';')[[1]])
@@ -57,13 +64,13 @@ recode <- function(var, recodes, deal.time = FALSE, as.factor.result = TRUE, lev
       recode.res[var %in% set] <- target
     }
   }
- 
-  if(as.factor.result | is.factor(var)){
-    if(!missing(levels)){
-      recode.res <- factor(recode.res, levels = levels)
-    }else{
-      recode.res <- factor(recode.res)
-    }
+  
+  if(as.factor.result){
+    recode.res.text <- paste0('factor(recode.res',
+                              ifelse(missing(levels), '', paste0(',levels=', deparse(levels))),
+                              ifelse(missing(labels), '', paste0(',labels=', deparse(labels))),
+                              ')')
+    recode.res <- eval(parse(text = recode.res.text))
   }
   recode.res
 }
