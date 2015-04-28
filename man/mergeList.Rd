@@ -10,16 +10,18 @@ mergeList(objs, by = NULL, all = FALSE, all.x = FALSE, all.y = FALSE)
 
 \item{by}{by variable}
 
-\item{all,all.x,all.y}{the same with merge's
+\item{all,all.x,all.y}{the same with merge's}
+}
+\description{
+an improved version of `merge`, which can merge a set of dataframes\n it can rename the varaibles with same names automatically except 'by' variables
+}
+\examples{
 data(iris)
 iris <- cbind(id = 1:20, iris[1:20, ])
 x1 <- iris
 x2 <- iris
 x3 <- iris
 x4 <- iris
-mergeList(c('x1', 'x2', 'x3', 'x4'), by = 'id')}
-}
-\description{
-an improved version of `merge`, which can merge a set of dataframes\n it can rename the varaibles with same names automatically except 'by' variables
+mergeList(c('x1', 'x2', 'x3', 'x4'), by = 'id')
 }
 
