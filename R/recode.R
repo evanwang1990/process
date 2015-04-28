@@ -3,7 +3,8 @@
 #'@description Add a function of recoding time vector to `car::recode`
 #'@param var numeric vector, character vector, factor, time vector
 #'@param recodes character string of recode specification
-#'@param deal.time if
+#'@param as.factor.result if `TRUE`, it returns a factor
+#'@param levels, labels Only as `as.factor.result` equals TRUE, then `levels` and `labels` work
 #'@export
 recode <- function(var, recodes, as.factor.result = TRUE, levels, labels){
   if(is.factor(var)) var <- as.character(var)
