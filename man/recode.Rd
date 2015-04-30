@@ -10,7 +10,9 @@ recode(var, recodes, as.factor.result = TRUE, levels, labels)
 
 \item{recodes}{character string of recode specification}
 
-\item{deal.time}{if}
+\item{as.factor.result}{if `TRUE`, it returns a factor}
+
+\item{levels,}{labels Only as `as.factor.result` equals TRUE, then `levels` and `labels` work}
 }
 \description{
 Add a function of recoding time vector to `car::recode`
