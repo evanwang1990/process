@@ -86,25 +86,6 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
     {
       kNN[i*kmax + j] = dist[j];
     }    
-    
-    //
-  cout<<"dist: ";
-  for(int m=0; m<nrow-1; m++)
-  {
-    cout<<dist[m].distance<<" ";
-  }
-  cout<<endl<<"index: ";
-  for(int m=0; m<nrow-1; m++)
-  {
-    cout<<dist[m].index<<" ";
-  }
-  cout<<endl<<"neigbors: "<<act_k[i]<<endl<<"kNN: ";
-  for(int m=i*kmax; m<i*kmax+kmax; ++m)
-  {
-    cout<<kNN[m].index<<" ";
-  }
-  cout<<endl;
-    
   }
   
   
@@ -125,7 +106,7 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
   for(int i=0; i<nrow; ++i)
   {
     double lof_ = 0;
-    for(int j=0; j<act_k[i]; ++j)
+    for(int j=0; j<=act_k[i]; ++j)
     {
       lof_ += lrd[kNN[i*kmax + j].index];
     }
