@@ -103,6 +103,11 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
     }    
   }
   
+  for(int i=0; i<nrow*kmax; i++)
+  {
+    cout<<kNN[i].distance<<" ";
+  }
+  cout<<endl;
   
   NumericVector lrd(nrow);
   NodeDist neighbor_;
@@ -145,6 +150,17 @@ NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num)
   
   parallelKNN parallelKNN(k, kmax, nrow, data, dist, indx, act_k);
   parallelFor(0, nrow, parallelKNN);
+  
+  //
+  for(int i=0; i<dist.nrow(); ++i)
+  {
+    for(int j = 0; j<kmax; ++j)
+    {
+      cout<<dist(i,j)<<" ";
+    }
+    cout<<endl;
+  }
+  //
   
   NumericVector lrd(nrow);
   for(unsigned int i=0; i<nrow; ++i)
