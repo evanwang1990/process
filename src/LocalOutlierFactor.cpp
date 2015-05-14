@@ -67,56 +67,6 @@ struct parallelKNN:public Worker
   }
 };
 
-struct parallelLRD:public Worker
-{
-  const RMatrix<double> dist;
-  const RMatrix<int> indx;
-  const RVector<int> act_k;
-  const int k;
-  RVector<double> lrd;
-  
-  parallelLRD(const NumericMatrix dist, const IntegerMatrix indx, const IntegerVector act_k, const int k, NumericVector lrd)
-    : dist(dist), indx(indx), act_k(act_k), k(k), lrd(lrd) {}
-  
-  void operator()(size_t begin, size_t end)
-  {
-    for(unsigned int i=begin; i<end; ++i)
-    {
-      double lrd_ = 0;
-      for(int j=0; j<=act_k[i]; ++j)
-      {
-        lrd_ += max(dist(i, j), dist(indx(i, j), k - 1));
-      }
-      lrd[i] = (act_k[i] + 1) / lrd_;
-    }
-  }
-};
-
-struct parallelLOFactor:public Worker
-{
-  const RVector<double> lrd;
-  const RMatrix<int> indx;
-  const RVector<int> act_k;
-  RVector<double> lof;
-  
-  parallelLOFactor(const NumericVector lrd, const IntegerMatrix indx, const IntegerVector act_k, NumericVector lof)
-    : lrd(lrd), indx(indx), act_k(act_k), lof(lof) {}
-  
-  void operator()(size_t begin, size_t end)
-  {
-    for(unsigned int i=begin; i<end; ++i)
-    {
-      double lof_ = 0;
-      for(int j=0; j<=act_k[i]; ++j)
-      {
-        lof_ += lrd[indx(i,j)];
-      }
-      lof[i] = lof_ / ((act_k[i] + 1) * lrd[i]);
-    }
-  }
-};
-
-//[[Rcpp::export]]
 NumericVector LOF(NumericMatrix data, int k, int equal_num)
 {
   int nrow = data.nrow();
@@ -177,7 +127,6 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
   return lof;
 }
 
-
 //[[Rcpp::export]]
 NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num)
 {
@@ -191,18 +140,29 @@ NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num)
   parallelFor(0, nrow, parallelKNN);
   
   NumericVector lrd(nrow);
-  parallelLRD parallelLRD(dist, indx, act_k, k, lrd);
-  parallelFor(0, nrow, parallelLRD);
+  for(unsigned int i=0; i<nrow; ++i)
+    {
+      double lrd_ = 0;
+      for(int j=0; j<=act_k[i]; ++j)
+      {
+        lrd_ += max(dist(i, j), dist(indx(i, j), k - 1));
+      }
+      lrd[i] = (act_k[i] + 1) / lrd_;
+    }
   
 
   NumericVector lof(nrow);
-  parallelLOFactor parallelLOFactor(lrd, indx, act_k, lof);
-  parallelFor(0, nrow, parallelLOFactor);
+  for(unsigned int i=0; i<nrow; ++i)
+    {
+      double lof_ = 0;
+      for(int j=0; j<=act_k[i]; ++j)
+      {
+        lof_ += lrd[indx(i,j)];
+      }
+      lof[i] = lof_ / ((act_k[i] + 1) * lrd[i]);
+    }
   return lof;
 }
-
-
-
 
 int partition(vector<NodeDist> & arr, int beg, int end)
 {

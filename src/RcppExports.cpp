@@ -5,104 +5,58 @@
 
 using namespace Rcpp;
 
-// LOF
-NumericVector LOF(NumericMatrix data, int k, int equal_num);
-RcppExport SEXP process_LOF(SEXP dataSEXP, SEXP kSEXP, SEXP equal_numSEXP) {
+// parallelLOF
+NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num);
+RcppExport SEXP process_parallelLOF(SEXP dataSEXP, SEXP kSEXP, SEXP equal_numSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP );
-        Rcpp::traits::input_parameter< int >::type k(kSEXP );
-        Rcpp::traits::input_parameter< int >::type equal_num(equal_numSEXP );
-        NumericVector __result = LOF(data, k, equal_num);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// rcpp_js_distance
-NumericMatrix rcpp_js_distance(NumericMatrix mat);
-RcppExport SEXP process_rcpp_js_distance(SEXP matSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP );
-        NumericMatrix __result = rcpp_js_distance(mat);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// rcpp_parallel_js_distance
-NumericMatrix rcpp_parallel_js_distance(NumericMatrix mat);
-RcppExport SEXP process_rcpp_parallel_js_distance(SEXP matSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP );
-        NumericMatrix __result = rcpp_parallel_js_distance(mat);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type equal_num(equal_numSEXP);
+    __result = Rcpp::wrap(parallelLOF(data, k, equal_num));
+    return __result;
 END_RCPP
 }
 // TrimSum
 float TrimSum(NumericVector A, int p, int r, int K);
 RcppExport SEXP process_TrimSum(SEXP ASEXP, SEXP pSEXP, SEXP rSEXP, SEXP KSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP );
-        Rcpp::traits::input_parameter< int >::type p(pSEXP );
-        Rcpp::traits::input_parameter< int >::type r(rSEXP );
-        Rcpp::traits::input_parameter< int >::type K(KSEXP );
-        float __result = TrimSum(A, p, r, K);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type r(rSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    __result = Rcpp::wrap(TrimSum(A, p, r, K));
+    return __result;
 END_RCPP
 }
 // TrimMean
 float TrimMean(NumericVector A, int p, int r, int K);
 RcppExport SEXP process_TrimMean(SEXP ASEXP, SEXP pSEXP, SEXP rSEXP, SEXP KSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP );
-        Rcpp::traits::input_parameter< int >::type p(pSEXP );
-        Rcpp::traits::input_parameter< int >::type r(rSEXP );
-        Rcpp::traits::input_parameter< int >::type K(KSEXP );
-        float __result = TrimMean(A, p, r, K);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type r(rSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    __result = Rcpp::wrap(TrimMean(A, p, r, K));
+    return __result;
 END_RCPP
 }
 // test
 NumericVector test(NumericVector A, int p, int r, int K);
 RcppExport SEXP process_test(SEXP ASEXP, SEXP pSEXP, SEXP rSEXP, SEXP KSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP );
-        Rcpp::traits::input_parameter< int >::type p(pSEXP );
-        Rcpp::traits::input_parameter< int >::type r(rSEXP );
-        Rcpp::traits::input_parameter< int >::type K(KSEXP );
-        NumericVector __result = test(A, p, r, K);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type r(rSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    __result = Rcpp::wrap(test(A, p, r, K));
+    return __result;
 END_RCPP
 }
