@@ -1,9 +1,12 @@
 #include <Rcpp.h>
+//[[Rcpp::depends(RcppParallel)]]
+#include <RcppParallel.h>
 #include <vector>
 #include <math.h>
 
 using namespace Rcpp;
 using namespace std;
+using namespace RcppParallel;
 
 struct NodeDist
 {
@@ -11,49 +14,61 @@ struct NodeDist
   int index;
 };
 
+int partition(vector<NodeDist> & arr, int beg, int end);
+int rearrange(vector<NodeDist> & arr, int beg, int end, int p);
+int rearrange_else(vector<NodeDist> & arr, int p, int end);
 
-int partition(vector<NodeDist> & arr, int beg, int end)
+struct parallelKNN:public Worker
 {
-  int p = beg - 1;
-  for(int i=beg; i<end; ++i)
+  const unsigned int k;
+  const int kmax;
+  const unsigned int nrow;
+  const RMatrix<double> data;
+  RMatrix<double> dist;
+  RMatrix<int> indx;
+  RVector<int> act_k;
+  
+  parallelKNN(unsigned int k, int kmax, unsigned int nrow, NumericMatrix data, NumericMatrix dist, IntegerMatrix indx, IntegerVector act_k)
+    : k(k), kmax(kmax), nrow(nrow), data(data), dist(dist), indx(indx), act_k(act_k) {}
+  
+  void operator()(size_t begin, size_t end)
   {
-    if(arr[i].distance <= arr[end].distance)
+    vector<NodeDist> nodedist(nrow - 1);
+    for(size_t i = begin; i < end; ++i)
     {
-      p ++;
-      swap(arr[i], arr[p]);
-    }
-  }
-  p ++;
-  swap(arr[p], arr[end]);
-  return p;
-}
-
-int rearrange(vector<NodeDist> & arr, int beg, int end, int p)
-{
-  if(beg == end) return 0;
-  int p0 = partition(arr, beg, end);
-  if(p == p0) return 0;
-  if(p0 > p) 
-    return rearrange(arr, beg, p0-1, p);
-  else 
-    return rearrange(arr, p0+1, end, p);
-}
-
-int rearrange_else(vector<NodeDist> & arr, int p, int end)
-{
-  if(p + 1 <= end)
-  {
-    for(int i = p+1; i<=end; ++i)
-    {
-      if(abs(arr[p].distance - arr[i].distance) < 1e-6)
+      RMatrix<double>::Row node0 = data.row(i);
+      vector<NodeDist>::iterator dist_pt = nodedist.begin();
+      for(unsigned int j = 0; j < nrow; ++j)
       {
-        p ++;
-        swap(arr[p], arr[i]);
+        //calculate Euclidean distances
+        if(i == j) continue; // don't calculate self's distance
+        RMatrix<double>::Row node1 = data.row(j);
+        double dist_ = 0;
+        for(size_t len = 0; len < node0.length(); ++len)
+        {
+          dist_ += pow(node0[len] - node1[len], 2);
+        }
+        dist_ = sqrt(dist_);
+        
+        //initialize the nodedist vector
+        dist_pt->distance = dist_;
+        dist_pt->index = j;
+        dist_pt ++;
+      }
+      
+      rearrange(nodedist, 0, nrow-2, k - 1);
+      act_k[i] = min(rearrange_else(nodedist, k - 1, nrow - 2), kmax - 1);
+      for(int j = 0; j <= act_k[i]; ++j)
+      {
+        dist(i,j) = nodedist[j].distance;
+        indx(i,j) = nodedist[j].index;
       }
     }
   }
-  return p;
-}
+};
+
+
+
 
 
 //[[Rcpp::export]]
@@ -116,4 +131,87 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
   delete [] kNN;
   delete [] act_k;
   return lof;
+}
+
+
+//[[Rcpp::export]]
+NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num)
+{
+  unsigned int nrow = data.nrow();
+  int kmax = min(nrow, k+equal_num);
+  NumericMatrix dist(nrow, kmax);
+  IntegerMatrix indx(nrow, kmax);
+  IntegerVector act_k(nrow);
+  
+  parallelKNN parallelKNN(k, kmax, nrow, data, dist, indx, act_k);
+  parallelFor(0, nrow, parallelKNN);
+  
+  NumericVector lrd(nrow);
+  for(unsigned int i=0; i<nrow; ++i)
+  {
+    double lrd_ = 0;
+    for(int j=0; j<=act_k[i]; ++j)
+    {
+      lrd_ += max(dist(i, j), dist(j, k - 1));
+    }
+    lrd[i] = (act_k[i] + 1) / lrd_;
+  }
+  
+  NumericVector lof(nrow);
+  for(unsigned int i=0; i<nrow; ++i)
+  {
+    double lof_ = 0;
+    for(int j=0; j<=act_k[i]; ++j)
+    {
+      lof_ += lrd[indx(i,j)];
+    }
+    lof[i] = lof_ / ((act_k[i] + 1) * lrd[i]);
+  }
+  return lof;
+}
+
+
+
+
+int partition(vector<NodeDist> & arr, int beg, int end)
+{
+  int p = beg - 1;
+  for(int i=beg; i<end; ++i)
+  {
+    if(arr[i].distance <= arr[end].distance)
+    {
+      p ++;
+      swap(arr[i], arr[p]);
+    }
+  }
+  p ++;
+  swap(arr[p], arr[end]);
+  return p;
+}
+
+int rearrange(vector<NodeDist> & arr, int beg, int end, int p)
+{
+  if(beg == end) return 0;
+  int p0 = partition(arr, beg, end);
+  if(p == p0) return 0;
+  if(p0 > p) 
+    return rearrange(arr, beg, p0-1, p);
+  else 
+    return rearrange(arr, p0+1, end, p);
+}
+
+int rearrange_else(vector<NodeDist> & arr, int p, int end)
+{
+  if(p + 1 <= end)
+  {
+    for(int i = p+1; i<=end; ++i)
+    {
+      if(abs(arr[p].distance - arr[i].distance) < 1e-6)
+      {
+        p ++;
+        swap(arr[p], arr[i]);
+      }
+    }
+  }
+  return p;
 }

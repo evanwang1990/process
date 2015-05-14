@@ -5,6 +5,53 @@
 
 using namespace Rcpp;
 
+// LOF
+NumericVector LOF(NumericMatrix data, int k, int equal_num);
+RcppExport SEXP process_LOF(SEXP dataSEXP, SEXP kSEXP, SEXP equal_numSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP );
+        Rcpp::traits::input_parameter< int >::type k(kSEXP );
+        Rcpp::traits::input_parameter< int >::type equal_num(equal_numSEXP );
+        NumericVector __result = LOF(data, k, equal_num);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// rcpp_js_distance
+NumericMatrix rcpp_js_distance(NumericMatrix mat);
+RcppExport SEXP process_rcpp_js_distance(SEXP matSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP );
+        NumericMatrix __result = rcpp_js_distance(mat);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// rcpp_parallel_js_distance
+NumericMatrix rcpp_parallel_js_distance(NumericMatrix mat);
+RcppExport SEXP process_rcpp_parallel_js_distance(SEXP matSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP );
+        NumericMatrix __result = rcpp_parallel_js_distance(mat);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // TrimSum
 float TrimSum(NumericVector A, int p, int r, int K);
 RcppExport SEXP process_TrimSum(SEXP ASEXP, SEXP pSEXP, SEXP rSEXP, SEXP KSEXP) {

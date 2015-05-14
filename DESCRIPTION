@@ -12,6 +12,8 @@ Depends:
   Rcpp
 Imports:
   lubridate,
-  stringr
-LinkingTo: Rcpp
-Imports:Rcpp
+  stringr,
+  RcppParallel,
+  Rcpp
+LinkingTo: Rcpp, RcppParallel
+SystemRequirements: GNU make
