@@ -1,3 +1,5 @@
+useDynLib(process)
 exportPattern("^[[:alpha:]]+")
 import('data.table','Rcpp')
 importFrom('stringr', 'str_replace_all')
+importFrom('RcppParallel', 'RcppParallelLibs')
