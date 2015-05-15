@@ -8,16 +8,26 @@ using namespace Rcpp;
 using namespace std;
 using namespace RcppParallel;
 
+//NodeDist structure makes searching one point's
+//k-neighbours much easier because it contains
+//both distance and index information.
 struct NodeDist
 {
   double distance;
   int index;
 };
 
+//using the algorithm of finding the nth element 
+//of an array in "Introduction of Algorithm".
 int partition(vector<NodeDist> & arr, int beg, int end);
 int rearrange(vector<NodeDist> & arr, int beg, int end, int p);
+//do something to make sure all the numbers left 
+//of pth number are not larger than the pth number
+//and the right are larger than the pth number
 int rearrange_else(vector<NodeDist> & arr, int p, int end);
 
+//calculate k_distance and local reachable density
+//in parallel way
 struct parallelKNN:public Worker
 {
   const unsigned int k;
@@ -56,6 +66,7 @@ struct parallelKNN:public Worker
         dist_pt ++;
       }
       
+      //find k-neighbours to calculate k-distance
       rearrange(nodedist, 0, nrow-2, k - 1);
       act_k[i] = min(rearrange_else(nodedist, k - 1, nrow - 2), kmax - 1);
       for(int j = 0; j <= act_k[i]; ++j)
@@ -67,6 +78,7 @@ struct parallelKNN:public Worker
   }
 };
 
+//calculate local outlier factor in serial way
 NumericVector LOF(NumericMatrix data, int k, int equal_num)
 {
   int nrow = data.nrow();
@@ -127,6 +139,7 @@ NumericVector LOF(NumericMatrix data, int k, int equal_num)
   return lof;
 }
 
+//calculate local outlier factor in parallel way
 //[[Rcpp::export]]
 NumericVector parallelLOF(NumericMatrix data, unsigned int k, int equal_num)
 {
