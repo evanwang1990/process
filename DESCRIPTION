@@ -7,13 +7,15 @@ Author: Evan Wang
 Maintainer: Evan Wang <evanwang1990@gmail.com>
 Description: some useful functions in data processing
 License: GPL
-Depends:
+Depends: 
   data.table, 
   Rcpp
-Imports:
+Imports: 
   lubridate,
   stringr,
   RcppParallel,
   Rcpp
 LinkingTo: Rcpp, RcppParallel
 SystemRequirements: GNU make
+Suggests: knitr
+VignetteBuilder: knitr
